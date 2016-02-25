@@ -58,10 +58,14 @@ class CASino::LDAPAuthenticator
   end
 
   def user_data(user)
-    {
-      username: user[username_attribute].first,
+    attrs = {
       extra_attributes: extra_attributes(user)
     }
+    Array(username_attribute).each do |attribute|
+      attrs[attribute.to_sym] = user[attribute].first
+    end
+    attrs[:username] = username
+    attrs
   end
 
   def username_attribute
@@ -69,7 +73,7 @@ class CASino::LDAPAuthenticator
   end
 
   def user_filter(username)
-    filter = Net::LDAP::Filter.eq(username_attribute, username)
+    filter = Array(username_attribute).map { |ua| Net::LDAP::Filter.eq(ua, username) }.reduce(:|)
     unless @options[:filter].nil?
       filter &= Net::LDAP::Filter.construct(@options[:filter])
     end
