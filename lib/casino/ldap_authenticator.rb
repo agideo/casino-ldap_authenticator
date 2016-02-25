@@ -54,10 +54,10 @@ class CASino::LDAPAuthenticator
     if user.is_a?(Array)
       user = user.first
     end
-    user_data(user)
+    user_data(user, username)
   end
 
-  def user_data(user)
+  def user_data(user, username)
     attrs = {
       extra_attributes: extra_attributes(user)
     }
